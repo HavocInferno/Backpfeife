@@ -11,9 +11,9 @@ public class CameraManager : MonoBehaviour
 	//level-wide container class for miscellanous necessary camera information/access
 
 	public GameObject nonVRCamera;
-	public GameObject vrCamera;
+	//public GameObject vrCamera;
 
-	#if UNITY_EDITOR
+/*	#if UNITY_EDITOR
 	[MenuItem("PickOneTools/Cams to crawler setup")]
 	private static void CrawlerCamsOption()
 	{
@@ -27,5 +27,5 @@ public class CameraManager : MonoBehaviour
 		FindObjectOfType<CameraManager> ().nonVRCamera.SetActive (false);
 		FindObjectOfType<CameraManager> ().vrCamera.SetActive (true);
 	}
-	#endif
+	#endif*/
 }

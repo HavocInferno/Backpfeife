@@ -19,16 +19,6 @@ public class CrawlerController : NetworkBehaviour
             GetComponent<Crawler>().Attack();
         }
 
-        if (Input.GetButtonDown("Ability1"))
-        {
-            GetComponent<Crawler>().ActivateAbility(0);
-        }
-
-        if (Input.GetButtonDown("Ability2"))
-        {
-            GetComponent<Crawler>().ActivateAbility(1);
-        }
-
 		if (Input.GetButtonDown("Ping"))
 		{
 			GetComponent<Crawler>().Ping();

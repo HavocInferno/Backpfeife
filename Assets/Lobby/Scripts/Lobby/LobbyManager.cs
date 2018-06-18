@@ -74,7 +74,7 @@ namespace Prototype.NetworkLobby
             //GetComponent<Canvas>().enabled = true;
 
             DontDestroyOnLoad(gameObject);
-            DontDestroyOnLoad(loadingScreen);
+            //DontDestroyOnLoad(loadingScreen);
 
             SetServerInfo("Offline", "None");
 
@@ -323,7 +323,7 @@ namespace Prototype.NetworkLobby
 		}
 
 		public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId) {
-			int index = currentPlayers [conn.connectionId];
+            int index = 0; // currentPlayers [conn.connectionId];
 
 			GameObject playerPrefab = (GameObject)GameObject.Instantiate (spawnPrefabs [index], 
 				                          startPositions [conn.connectionId].position,
@@ -390,7 +390,7 @@ namespace Prototype.NetworkLobby
 					allready &= lobbySlots [i].readyToBegin;
 
 					LobbyPlayer p = lobbySlots[i] as LobbyPlayer;
-					Debug.Log("Starting match with Player " + i + "/" + (p.isMonster ? "Master" : "Crawler") + " as: " + p.playerName + ", color " + p.playerColor.ToString() + ", Class " + p.classIndex + ", VR model: " + p.vrDeviceModel);
+					Debug.Log("Starting match with Player " + i + "/" + (p.isMonster ? "Master" : "Crawler") + " as: " + p.playerName + ", color " + p.playerColor.ToString());
 				}
 			}
 

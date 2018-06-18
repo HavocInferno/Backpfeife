@@ -22,76 +22,9 @@ public class GenericCharacter : NetworkBehaviour
 
     [Space(8)]
 
-    [Header("Abilities")]
-
-    public List<AbstractEffect> passiveEffects = new List<AbstractEffect>();
-
-    private List<AbstractEffect> _appliedEffects = new List<AbstractEffect>();
-
     public Renderer mainRenderer = null;
 
 	public Animator anim; 
-
-    // Enable specified effect for a given period of time.
-    public void EnableEffectDuration(AbstractEffect effect, float duration)
-    {
-        AppliedEffect comp = gameObject.AddComponent<AppliedEffect>();
-        comp.Initialize(effect, duration);
-    }
-
-    public void EnableEffect(AbstractEffect effect)
-    {
-        if (!isServer) return;
-        RpcEnableEffect(effect.name);
-    }
-
-    // Enable specified effect (can be disabled manually via Disable call)
-    [ClientRpc]
-    private void RpcEnableEffect(string effectName)
-    {
-        var effect = Effects.GetByName(effectName);
-        LocalEnableEffect(effect);
-    }
-
-    private void LocalEnableEffect(AbstractEffect effect)
-    {
-		if (_appliedEffects.Contains (effect))
-			return;
-        Debug.LogFormat("{0} | Effect {1} enabled", name, effect.name);
-        effect.Enable(this, isLocalPlayer, isServer);
-        _appliedEffects.Add(effect);
-        if (isLocalPlayer && effect.icon != null)
-            FindObjectOfType<ActiveEffectsPanel>().AddElement(effect);
-    }
-
-    public void DisableEffect(AbstractEffect effect)
-    {
-        if (!isServer) return;
-        RpcDisableEffect(effect.name);
-    }
-
-    [ClientRpc]
-    private void RpcDisableEffect(string effectName)
-    {
-        var effect = Effects.GetByName(effectName);
-        LocalDisableEffect(effect);
-    }
-
-    private void LocalDisableEffect(AbstractEffect effect)
-    {
-		if (!_appliedEffects.Contains (effect))
-			return;
-        effect.Disable(this, isLocalPlayer, isServer);
-        Debug.LogFormat("{0} | Effect {1} disabled", name, effect.name);
-        _appliedEffects.Remove(effect);
-        if (isLocalPlayer && effect.icon != null)
-            FindObjectOfType<ActiveEffectsPanel>().RemoveElement(effect);
-    }
-
-    public bool EffectIsEnabled(AbstractEffect effect)
-    {
-        return _appliedEffects.Contains(effect);
-    }
 
     /*public enum ActionState {
 		NONE,
@@ -105,10 +38,6 @@ public class GenericCharacter : NetworkBehaviour
 
     protected virtual void Start()
     {
-        foreach (var effect in passiveEffects)
-        {
-            LocalEnableEffect(effect);
-        }
 		var netanim = GetComponentInChildren<NetworkAnimator> ();
 		if (netanim != null) {
 			netanim.SetParameterAutoSend (0, true);
@@ -170,17 +99,6 @@ public class GenericCharacter : NetworkBehaviour
 
 		if (anim != null)
 			anim.SetTrigger ("Hit");
-        foreach (AbstractEffect effect in _appliedEffects)
-        {
-            effect.OnReceiveDamage(
-                amount,
-                attacker,
-                this,
-                hitPoint,
-                hitDirection,
-                isLocalPlayer,
-                isServer);
-        }
     }
 
     public virtual void OnMakeDamage(
@@ -189,16 +107,5 @@ public class GenericCharacter : NetworkBehaviour
         Vector3 hitPoint,
         Vector3 hitDirection)
     {
-        foreach (AbstractEffect effect in _appliedEffects)
-        {
-            effect.OnMakeDamage(
-                amount,
-                this,
-                target,
-                hitPoint,
-                hitDirection,
-                isLocalPlayer,
-                isServer);
-        }
     }
 }

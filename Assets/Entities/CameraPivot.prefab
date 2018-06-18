@@ -35,14 +35,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4587404022575060}
   - component: {fileID: 20795422265605016}
-  - component: {fileID: 92201812946655816}
   - component: {fileID: 124520377109743022}
   - component: {fileID: 81018224483981504}
   - component: {fileID: 114062983238161808}
-  - component: {fileID: 114522518858585574}
   - component: {fileID: 114617790947685884}
-  - component: {fileID: 114629505921237468}
   - component: {fileID: 114047724155554984}
+  - component: {fileID: 114570310648209526}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -108,19 +106,13 @@ Camera:
   m_TargetEye: 3
   m_HDR: 1
   m_AllowMSAA: 0
+  m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!81 &81018224483981504
 AudioListener:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1344757666522858}
-  m_Enabled: 1
---- !u!92 &92201812946655816
-Behaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
@@ -152,6 +144,7 @@ MonoBehaviour:
   target: {fileID: 0}
   offset: {x: 0, y: 0.3, z: -5}
   pivotOffsetIntended: {x: 2, y: 0, z: 0}
+  pivotOffsetObstructed: {x: 0, y: 1, z: 0}
   localRot: {x: 0, y: 0, z: 0}
   distanceIntended: 4
   mouseSense: 4
@@ -171,23 +164,22 @@ MonoBehaviour:
   cumulativeShakeyStrength: 0
   maxCumStrength: 5
   shakeDistanceTarget: {fileID: 0}
---- !u!114 &114522518858585574
+--- !u!114 &114570310648209526
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1344757666522858}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 900e735e2e1268f4fabf25140d3033ca, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightShader: {fileID: 4800000, guid: cad59ca89422c924cbd36f79acddf3dd, type: 3}
-  blendShader: {fileID: 4800000, guid: 23a7794b5a7f8ca4583d7e687ec46262, type: 3}
-  replacementTag: Highlight
-  cullingMask:
-    serializedVersion: 2
-    m_Bits: 2048
+  sharedProfile: {fileID: 11400000, guid: 51406b424ec0d1648a51d9014992256d, type: 2}
+  isGlobal: 1
+  blendDistance: 0
+  weight: 1
+  priority: 0
 --- !u!114 &114617790947685884
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -202,18 +194,6 @@ MonoBehaviour:
   shakeybakeys: []
   cumulativeShakeyStrength: 0
   maxCumStrength: 5
---- !u!114 &114629505921237468
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1344757666522858}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  profile: {fileID: 11400000, guid: ea515ab0463ac1049b2856fb46df8f60, type: 2}
 --- !u!124 &124520377109743022
 Behaviour:
   m_ObjectHideFlags: 1

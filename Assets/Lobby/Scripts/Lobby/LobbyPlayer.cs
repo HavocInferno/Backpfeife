@@ -22,13 +22,9 @@ namespace Prototype.NetworkLobby
         public Button waitingPlayerButton;
         public Button removePlayerButton;
 
-		public Toggle vrMasterToggle;
-		public GameObject vrMasterIcon;
-		public GameObject vrInfoIcon;
-		public Toggle class1Button;
-		public Toggle class2Button;
-		public Toggle class3Button;
-		public Toggle class4Button;
+		public Toggle mMonsterToggle;
+		public GameObject mMonsterIcon;
+		public GameObject mInfoIcon;
 
         public GameObject localIcone;
         public GameObject remoteIcone;
@@ -38,14 +34,8 @@ namespace Prototype.NetworkLobby
         public string playerName = "";
         [SyncVar(hook = "OnMyColor")]
         public Color playerColor = Color.white;
-		[SyncVar(hook = "OnVRMaster")]
+		[SyncVar(hook = "OnIsMonster")]
 		public bool isMonster = false;
-		//[SyncVar(hook = "OnHasHMD")]
-		//public bool isVRcapable = false;
-		[SyncVar(hook = "OnMyVRModel")]
-		public int vrDeviceModel = -1; //-1 = NONE, 1 = VIVE, 2 = RIFT
-		[SyncVar(hook = "OnMyClassIndex")]
-		public int classIndex = -1; //-1 = NONE, x = Class x
 
         public Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         public Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
@@ -94,7 +84,7 @@ namespace Prototype.NetworkLobby
 
 			//QueryVRDeviceModel ();
 
-           SetupLocalPlayer();
+            SetupLocalPlayer();
         }
 
         void ChangeReadyButtonColor(Color c)
@@ -109,19 +99,12 @@ namespace Prototype.NetworkLobby
 
         void SetupOtherPlayer()
         {
-			Debug.Log ("Setting up other lobby player; ---- Name: " + playerName + "; Color: " + playerColor.ToString() + "; VR model: " + vrDeviceModel + "; isMaster: " + isMonster.ToString());
+			Debug.Log ("Setting up other lobby player; ---- Name: " + playerName + "; Color: " + playerColor.ToString() + "; isMonster: " + isMonster.ToString());
 
             nameInput.interactable = false;
             removePlayerButton.interactable = NetworkServer.active;
 
             ChangeReadyButtonColor(NotReadyColor);
-
-			//VR Master and HMD capability checks
-			//CheckMasterToggle ();
-			//CheckMasterIcon ();
-			//CheckHMDToggle ();
-			if(!isMonster)
-				OnMyClassIndex (classIndex);
 
             readyButton.transform.GetChild(0).GetComponent<Text>().text = "...";
             readyButton.interactable = false;
@@ -137,18 +120,15 @@ namespace Prototype.NetworkLobby
             remoteIcone.gameObject.SetActive(false);
             localIcone.gameObject.SetActive(true);
 
-			//host kick-ability, VR Master and HMD capability checks
+			//host kick-ability
             CheckRemoveButton();
-			//CheckMasterToggle ();
-			//CheckHMDToggle ();
-			//EnableClassButtons ();
 
             if (playerColor == Color.white)
                 CmdColorChange();
 
             ChangeReadyButtonColor(JoinColor);
 
-            readyButton.transform.GetChild(0).GetComponent<Text>().text = "JOIN";
+            readyButton.transform.GetChild(0).GetComponent<Text>().text = "READY";
             readyButton.interactable = true;
 
             //have to use child count of player prefab already setup as "this.slot" is not set yet
@@ -189,29 +169,19 @@ namespace Prototype.NetworkLobby
 		//This enable/disable the vr master selection buttons for the host
 		public void CheckMasterToggle()
 		{
-			if (isServer && vrDeviceModel != -1) {
-				vrMasterToggle.gameObject.SetActive (true);
+			if (isServer) {
+				mMonsterToggle.gameObject.SetActive (true);
 			}
 
 			/*if (isMonster) {
-				vrMasterIcon.SetActive (true);
+				mMonsterIcon.SetActive (true);
 			}*/
 		}
 		public void CheckMasterIcon()
 		{
 			if (isMonster) {
-				vrMasterIcon.SetActive (true);
+				mMonsterIcon.SetActive (true);
 			}
-		}
-
-		/* check whether the client in question is vr capable, 
-		 * if so check the model and display whether it is a Rift or a Vive
-		 * otherwise display "no HMD"
-		*/
-		public void CheckHMDToggle()
-		{
-			Debug.Log ("Checking HMD Toggle");
-			OnMyVRModel (vrDeviceModel);
 		}
 
         public override void OnClientReady(bool readyState)
@@ -226,11 +196,7 @@ namespace Prototype.NetworkLobby
                 readyButton.interactable = false;
                 colorButton.interactable = false;
                 nameInput.interactable = false;
-				vrMasterToggle.interactable = false;
-				class1Button.interactable = false;
-				class2Button.interactable = false;
-				class3Button.interactable = false;
-				class4Button.interactable = false;
+				mMonsterToggle.interactable = false;
 
 				/*if (isLocalPlayer && isMonster)
 					UnityEngine.XR.XRSettings.enabled = true;
@@ -247,11 +213,7 @@ namespace Prototype.NetworkLobby
                 readyButton.interactable = isLocalPlayer;
                 colorButton.interactable = isLocalPlayer;
                 nameInput.interactable = isLocalPlayer;
-				vrMasterToggle.interactable = isServer;
-				class1Button.interactable = isLocalPlayer;
-				class2Button.interactable = isLocalPlayer;
-				class3Button.interactable = isLocalPlayer;
-				class4Button.interactable = isLocalPlayer;
+				mMonsterToggle.interactable = isServer;
             }
         }
 
@@ -259,129 +221,6 @@ namespace Prototype.NetworkLobby
         { 
             GetComponent<Image>().color = (idx % 2 == 0) ? EvenRowColor : OddRowColor;
         }
-
-		public void QueryVRDeviceModel() {
-			Debug.Log ("Querying VR Device Model");
-			if (UnityEngine.XR.XRDevice.isPresent) {
-				//isVRcapable = true;
-			
-				string model = UnityEngine.XR.XRDevice.model != null ?
-				UnityEngine.XR.XRDevice.model : "";
-
-				if (model.IndexOf ("Rift") >= 0) {
-					vrDeviceModel = 2;
-				} else {
-					vrDeviceModel = 1;
-				}
-				Debug.Log ("VR headset found, model " + vrDeviceModel + "; " + model);
-			} else {
-				vrDeviceModel = -1;
-			}
-
-			if (isServer)
-				RpcVRDetected(vrDeviceModel);
-			else
-				CmdVRDetected (vrDeviceModel);
-		}
-
-		[ClientRpc]
-		public void RpcVRDetected(int vrmodel) {
-			CmdVRDetected (vrmodel);
-		}
-
-		[Command]
-		public void CmdVRDetected(int vrmodel) {
-			vrDeviceModel = vrmodel;
-		}
-
-		public void EnableClassButtons() {
-			if (!hasAuthority)
-				return;
-			
-			class1Button.interactable = true;
-			class2Button.interactable = true;
-			class3Button.interactable = true;
-			class4Button.interactable = true;
-
-			class1Button.gameObject.SetActive (true);
-			class2Button.gameObject.SetActive (true);
-			class3Button.gameObject.SetActive (true);
-			class4Button.gameObject.SetActive (true);
-
-			class1Button.gameObject.GetComponent<UIHoverInfo>().EnableHover();
-			class2Button.gameObject.GetComponent<UIHoverInfo>().EnableHover();
-			class3Button.gameObject.GetComponent<UIHoverInfo>().EnableHover();
-			class4Button.gameObject.GetComponent<UIHoverInfo>().EnableHover();
-
-			class1Button.onValueChanged.RemoveAllListeners ();
-			class1Button.onValueChanged.AddListener (delegate {ClassPicker (class1Button.name, class1Button.isOn);});
-			class2Button.onValueChanged.RemoveAllListeners ();
-			class2Button.onValueChanged.AddListener (delegate {ClassPicker (class2Button.name, class2Button.isOn);});
-			class3Button.onValueChanged.RemoveAllListeners ();
-			class3Button.onValueChanged.AddListener (delegate {ClassPicker (class3Button.name, class3Button.isOn);});
-			class4Button.onValueChanged.RemoveAllListeners ();
-			class4Button.onValueChanged.AddListener (delegate {ClassPicker (class4Button.name, class4Button.isOn);});
-		}
-
-		public void DisableClassButtons() {
-			class1Button.interactable = false;
-			class2Button.interactable = false;
-			class3Button.interactable = false;
-			class4Button.interactable = false;
-
-			class1Button.gameObject.GetComponent<UIHoverInfo>().DisableHover();
-			class2Button.gameObject.GetComponent<UIHoverInfo>().DisableHover();
-			class3Button.gameObject.GetComponent<UIHoverInfo>().DisableHover();
-			class4Button.gameObject.GetComponent<UIHoverInfo>().DisableHover();
-
-			class1Button.gameObject.SetActive (false);
-			class2Button.gameObject.SetActive (false);
-			class3Button.gameObject.SetActive (false);
-			class4Button.gameObject.SetActive (false);
-		}
-
-		void ClassPicker(string buttonName, bool isOn) {
-			if (!isOn)
-				return;
-			
-			switch (buttonName) {
-			case "Class1Button":
-				classIndex = 0;
-				break;
-			case "Class2Button":
-				classIndex = 1;
-				break;
-			case "Class3Button":
-				classIndex = 2;
-				break;
-			case "Class4Button":
-				classIndex = 3;
-				break;
-			default:
-				break;
-			}
-
-			Debug.Log ("picked new class: " + buttonName + ", #" + classIndex);
-
-			if (isServer)
-				RpcClassPicked (classIndex);
-			else
-				CmdClassPicked (classIndex);
-		}
-
-		//ISSUE: apparently changing class on the server has "No authority"? 
-		// thus not actually changing the value on the clients permanently? 
-		// however the info is still transmitted and the correct class selection is displayed...
-		[ClientRpc]
-		public void RpcClassPicked(int cIndex) {
-			CmdClassPicked (cIndex);
-		}
-
-		[Command]
-		public void CmdClassPicked(int cIndex) {
-			LobbyManager.s_Singleton.SetPlayerTypeLobby (GetComponent<NetworkIdentity> ().connectionToClient, cIndex);
-			classIndex = cIndex;
-		}
 
         ///===== callback from sync var
 
@@ -398,78 +237,11 @@ namespace Prototype.NetworkLobby
         }
 
 		//if the isMonster syncvar is changed, enable the respective icon on that lobbyplayer's UI piece
-		public void OnVRMaster(bool newState)
+		public void OnIsMonster(bool newState)
 		{
 			//isMonster = newState;
-			//vrMasterToggle.isOn = newState;
-			vrMasterIcon.SetActive (newState);
-
-			if (newState == true) {
-				class1Button.gameObject.SetActive (false);
-				class2Button.gameObject.SetActive (false);
-				class3Button.gameObject.SetActive (false);
-				class4Button.gameObject.SetActive (false);
-			} else {
-				if (isLocalPlayer) {
-					class1Button.gameObject.SetActive (true);
-					class2Button.gameObject.SetActive (true);
-					class3Button.gameObject.SetActive (true);
-					class4Button.gameObject.SetActive (true);
-				} else {
-					Debug.Log ("class index of otherplayer is " + classIndex);
-					OnMyClassIndex (classIndex);
-				}
-			}
-		}
-
-		/* display whether the client in question is vr capable, 
-		 * and whether it is a Rift or a Vive or "no HMD"
-		*/
-		public void OnMyVRModel(int model) {
-			Debug.Log ("OnMyVRModel called with " + model);
-			vrInfoIcon.SetActive (true);
-			switch (model) {
-			case -1:
-				vrInfoIcon.GetComponentInChildren<Text> ().text = "no HMD";
-				break;
-			case 1: 
-				vrInfoIcon.GetComponentInChildren<Text> ().text = "Vive";
-				break;
-			case 2:
-				vrInfoIcon.GetComponentInChildren<Text> ().text = "Rift";
-				break;
-			default:
-				break;
-			}
-		}
-
-		public void OnMyClassIndex(int cIndex) {
-			if (!isLocalPlayer) {
-				class1Button.gameObject.SetActive (false);
-				class2Button.gameObject.SetActive (false);
-				class3Button.gameObject.SetActive (false);
-				class4Button.gameObject.SetActive (false);
-			Toggle selectedButton = null;
-				switch (cIndex) {
-			case 0:
-				selectedButton = class1Button;
-					break;
-			case 1:
-				selectedButton = class2Button;
-					break;
-			case 2:
-				selectedButton = class3Button;
-					break;
-			case 3:
-				selectedButton = class4Button;
-					break;
-				default:
-					break;
-				}
-
-				if(selectedButton != null)
-					selectedButton.gameObject.SetActive (true);
-			}
+			//mMonsterToggle.isOn = newState;
+			mMonsterIcon.SetActive (newState);
 		}
 
         //===== UI Handler
@@ -485,7 +257,7 @@ namespace Prototype.NetworkLobby
 		 * set all toggles to not-checked, 
 		 * then set the clicked toggle to checked 
 		 * and update the isMonster property of each player accordingly */
-		public void OnVRMasterClick(LobbyPlayer target)
+		public void OnMonsterClick(LobbyPlayer target)
 		{
 			if (isServer) {
 				foreach (LobbyPlayer lp in FindObjectsOfType(typeof(LobbyPlayer))) {

@@ -20,10 +20,6 @@ public class Crawler : GenericCharacter
 	public SkinnedMeshRenderer mesh;
 	public GameObject ragdoll;
 	Vector3 lastHitDir;
-    [Header("Skills")]
-
-    //public CrawlerClass crawlerClass;
-    public List<ActiveAbility> activeAbilities = new List<ActiveAbility>();
 
 	[Header("UI (to be disabled for local)")]
 	public GameObject tpsUI;
@@ -49,23 +45,12 @@ public class Crawler : GenericCharacter
         }
     }
 
-    protected virtual void FixedUpdate()
-    {
-        foreach (var ability in activeAbilities)
-        {
-            ability.Update(this);
-        }
-    }
-
     //#######################################################################
     //called after scene loaded
     protected override void Start()
     {
         //if (crawlerClass != null)
         //    crawlerClass.Apply(this);
-
-        foreach (var activeAbility in activeAbilities)
-            activeAbility.Recharge(this);
 
         base.Start();
 
@@ -100,14 +85,12 @@ public class Crawler : GenericCharacter
 
         if (isLocalPlayer)
         {
-            FindObjectOfType<AttributesPanel>().Register(GetComponent<Stats>());
 			FindObjectOfType<CUI_lowStat>().Register(GetComponent<Stats>());
 			if (tpsUI)
 				tpsUI.SetActive (false);
 
             //if (!isMonster) {
 				FindObjectOfType<CUI_crosshair> ().registerCrawler (this);
-                FindObjectOfType<AbilitiesPanel>().Initialize(activeAbilities);
 			//}
         }
 
@@ -176,7 +159,7 @@ public class Crawler : GenericCharacter
         //else
         //{
             UnityEngine.XR.XRSettings.enabled = false;
-            FindObjectOfType<CameraManager>().vrCamera.SetActive(false);
+            //FindObjectOfType<CameraManager>().vrCamera.SetActive(false);
             FindObjectOfType<CameraManager>().nonVRCamera.SetActive(true);
             Camera.main.GetComponent<DungeonCamera>().target = this.gameObject;
 			Camera.main.GetComponent<DungeonCamera>().shakeDistanceTarget = transform;
@@ -200,14 +183,6 @@ public class Crawler : GenericCharacter
 
         //weapon firing. dumb and unoptimized.
         CmdAttack();
-    }
-
-    public void ActivateAbility(int index)
-    {
-        if (!isLocalPlayer)
-            return;
-
-        CmdActivateAbility(index);
     }
 
 	public void Ping() {
@@ -241,9 +216,6 @@ public class Crawler : GenericCharacter
 
 	public void PingMastervis() {
 		//show master effect
-		if (!FindObjectOfType<Master> ())
-			return;
-		
 		Destroy(Instantiate(pingMasterEffect, this.gameObject.transform), pingEffectLifetime);
 	}
 
@@ -255,12 +227,6 @@ public class Crawler : GenericCharacter
         RpcAttack();
     }
 
-    [Command]
-    void CmdActivateAbility(int index)
-    {
-        RpcActivateAbility(index);
-    }
-
 	[Command]
 	void CmdPingMaster() {
 		//show master effect
@@ -270,12 +236,8 @@ public class Crawler : GenericCharacter
     //###################### RPC CALLS #####################################
     //VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
-    [ClientRpc]
-    void RpcActivateAbility(int index)
-    {
-        if (activeAbilities.Count > index)
-            activeAbilities[index].Activate(this);
-    }
+    //[ClientRpc]
+    //void RpcFoo(int index) {}
 
     //###################### SYNCVAR HOOKS #####################################
     //VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
@@ -289,7 +251,6 @@ public class Crawler : GenericCharacter
         FindObjectOfType<EndConditions>().CheckEndCondition();
 		nameTag.text += " [DEAD]";
 		gameObject.GetComponentInChildren<CrawlerController>().enabled = false;
-        Destroy(gameObject.GetComponent<DetectableObject>());
 		if (isLocalPlayer && isDead) {
 			FindObjectOfType<EndScreenUI> ().SetDeathScreen (true);
 		}

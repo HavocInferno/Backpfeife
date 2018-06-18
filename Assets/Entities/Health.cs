@@ -44,7 +44,6 @@ public class Health : NetworkBehaviour
 		{
 			if (destroyOnDeath)
             {
-				FindObjectOfType<EndConditions>().MarkEnemyKilled(gameObject.GetComponent<Enemy>());
 				Destroy(gameObject);
 			}
             else
